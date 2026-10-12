@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lavka Control</title>
+<style>
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f2f5fa;
+  color: #17233d;
+}
+header {
+  background: linear-gradient(135deg, #101c35, #243f70);
+  color: white;
+  padding: 30px 22px;
+  border-radius: 0 0 24px 24px;
+}
+.brand {
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: #a9c7ff;
+  font-weight: bold;
+}
+h1 {
+  margin: 12px 0 8px;
+  font-size: 30px;
+}
+header p {
+  color: #d7e3f8;
+  margin-bottom: 0;
+}
+main {
+  max-width: 900px;
+  margin: auto;
+  padding: 24px 18px;
+}
+h2 {
+  font-size: 21px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.card {
+  background: white;
+  padding: 20px 15px;
+  border-radius: 17px;
+  border: 1px solid #e1e7f0;
+  box-shadow: 0 5px 16px rgba(20, 40, 80, 0.05);
+}
+.icon {
+  font-size: 27px;
+  margin-bottom: 12px;
+}
+.card h3 {
+  font-size: 15px;
+  margin: 0 0 8px;
+}
+.card p {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #68758b;
+  margin: 0;
+}
+.status {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 6px 9px;
+  border-radius: 8px;
+  background: #eaf1ff;
+  color: #2854a0;
+  font-size: 11px;
+  font-weight: bold;
+}
+footer {
+  text-align: center;
+  padding: 25px;
+  color: #8993a5;
+  font-size: 12px;
+}
+@media (max-width: 380px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">УПРАВЛЕНИЕ СКЛАДОМ</div>
+  <h1>Lavka Control</h1>
+  <p>Порядок в каждой смене</p>
+</header>
+<main>
+  <h2>Добро пожаловать! 👋</h2>
+  <p>Выберите нужный раздел для работы.</p>
+  <div class="grid">
+    <div class="card">
+      <div class="icon">📦</div>
+      <h3>Приёмка товара</h3>
+      <p>Учёт поступлений и проверка товаров на складе.</p>
+      <span class="status">Раздел</span>
+    </div>
+    <div class="card">
+      <div class="icon">🛵</div>
+      <h3>Курьеры</h3>
+      <p>Информация о курьерах и распределении смен.</p>
+      <span class="status">Раздел</span>
+    </div>
+    <div class="card">
+      <div class="icon">📊</div>
+      <h3>Отчёты</h3>
+      <p>Сводки, результаты смен и контроль показателей.</p>
+      <span class="status">Раздел</span>
+    </div>
+    <div class="card">
+      <div class="icon">🗓️</div>
+      <h3>Расписание</h3>
+      <p>График работы сотрудников и планирование смен.</p>
+      <span class="status">Раздел</span>
+    </div>
+    <div class="card">
+      <div class="icon">🎒</div>
+      <h3>Сумки</h3>
+      <p>Учёт номеров сумок и их распределение.</p>
+      <span class="status">Раздел</span>
+    </div>
+    <div class="card">
+      <div class="icon">⚙️</div>
+      <h3>Настройки</h3>
+      <p>Инструменты управления рабочими процессами.</p>
+      <span class="status">Раздел</span>
+    </div>
+  </div>
+</main>
+<footer>
+  Lavka Control · Панель управления
+</footer>
+</body>
+</html>
