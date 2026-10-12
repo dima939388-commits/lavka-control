@@ -570,5 +570,187 @@ footer { text-align: center; padding: 20px; color: #8993a5; font-size: 11px; }
   }
 })();
 </script>
+
+<style>
+#schedule-section {
+  max-width: 1000px;
+  margin: 24px auto;
+  padding: 18px;
+  font-family: Arial, sans-serif;
+  color: #142443;
+}
+#schedule-section h2 { margin-bottom: 8px; }
+#schedule-section .schedule-panel {
+  background: white;
+  border: 1px solid #dce4ef;
+  border-radius: 16px;
+  padding: 16px;
+  margin-top: 14px;
+}
+#schedule-section input,
+#schedule-section select {
+  padding: 10px;
+  border: 1px solid #ccd6e5;
+  border-radius: 8px;
+  font-size: 15px;
+  max-width: 100%;
+}
+#schedule-section button {
+  padding: 11px 15px;
+  background: #2857a4;
+  color: white;
+  border: 0;
+  border-radius: 9px;
+  font-weight: bold;
+  margin: 8px 4px 8px 0;
+}
+#schedule-section .schedule-scroll { overflow-x: auto; }
+#schedule-section table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 520px;
+}
+#schedule-section th,
+#schedule-section td {
+  border: 1px solid #dce4ef;
+  padding: 9px;
+  text-align: left;
+  font-size: 13px;
+}
+#schedule-section th {
+  background: #142443;
+  color: white;
+}
+#schedule-section .workday { background: #e7f6ee; }
+#schedule-section .dayoff { background: #fff0f1; }
+#schedule-section .names {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(150px,1fr));
+  gap: 10px;
+}
+#schedule-section .names label {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+</style>
+
+<section id="schedule-section">
+  <h2>📅 Расписание сотрудников</h2>
+  <p>Автоматический график 5/2 · Смена 08:00–16:00</p>
+
+  <div class="schedule-panel">
+    <label for="scheduleMonth">Месяц расписания</label><br>
+    <input id="scheduleMonth" type="month">
+    <h3>Пять сотрудников</h3>
+    <div class="names">
+      <div><label for="worker1">Сотрудник 1</label><input id="worker1" value="Сотрудник 1"></div>
+      <div><label for="worker2">Сотрудник 2</label><input id="worker2" value="Сотрудник 2"></div>
+      <div><label for="worker3">Сотрудник 3</label><input id="worker3" value="Сотрудник 3"></div>
+      <div><label for="worker4">Сотрудник 4</label><input id="worker4" value="Сотрудник 4"></div>
+      <div><label for="worker5">Сотрудник 5</label><input id="worker5" value="Сотрудник 5"></div>
+    </div>
+    <button type="button" id="generateSchedule">Составить расписание</button>
+    <button type="button" id="printSchedule">Печать</button>
+    <p id="scheduleMessage">Выбери месяц и нажми «Составить расписание».</p>
+  </div>
+
+  <div class="schedule-panel schedule-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>Дата</th>
+          <th>День</th>
+          <th>Сотрудник</th>
+          <th>График</th>
+        </tr>
+      </thead>
+      <tbody id="scheduleBody">
+        <tr><td colspan="4">Расписание ещё не составлено.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<script>
+(function () {
+  const monthInput = document.getElementById("scheduleMonth");
+  const body = document.getElementById("scheduleBody");
+  const message = document.getElementById("scheduleMessage");
+  const namesKey = "lavkaScheduleNames_v1";
+  const monthKey = "lavkaScheduleMonth_v1";
+  const savedNames = JSON.parse(localStorage.getItem(namesKey) || "null");
+
+  const now = new Date();
+  monthInput.value = now.getFullYear() + "-" +
+    String(now.getMonth() + 1).padStart(2, "0");
+
+  if (Array.isArray(savedNames)) {
+    savedNames.forEach(function (name, i) {
+      const input = document.getElementById("worker" + (i + 1));
+      if (input) input.value = name;
+    });
+  }
+
+  function generateSchedule() {
+    if (!monthInput.value) {
+      message.textContent = "Сначала выбери месяц.";
+      return;
+    }
+
+    const names = [];
+    for (let i = 1; i <= 5; i++) {
+      names.push(document.getElementById("worker" + i).value.trim()
+        || "Сотрудник " + i);
+    }
+
+    const [year, month] = monthInput.value.split("-").map(Number);
+    const days = new Date(year, month, 0).getDate();
+    const weekdays = [
+      "Воскресенье", "Понедельник", "Вторник",
+      "Среда", "Четверг", "Пятница", "Суббота"
+    ];
+    let rows = "";
+
+    for (let day = 1; day <= days; day++) {
+      const date = new Date(year, month - 1, day);
+      const weekday = date.getDay();
+      const dateText = String(day).padStart(2, "0") + "." +
+        String(month).padStart(2, "0") + "." + year;
+      const isWorkday = weekday >= 1 && weekday <= 5;
+
+      names.forEach(function (name) {
+        rows += '<tr class="' + (isWorkday ? "workday" : "dayoff") + '">' +
+          "<td>" + dateText + "</td>" +
+          "<td>" + weekdays[weekday] + "</td>" +
+          "<td>" + name.replace(/[&<>"]/g, function (c) {
+            return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];
+          }) + "</td>" +
+          "<td>" + (isWorkday ? "08:00–16:00 · Работа" : "Выходной") + "</td>" +
+          "</tr>";
+      });
+    }
+
+    body.innerHTML = rows;
+    message.textContent = "Готово! Показано " + days +
+      " дней для 5 сотрудников. Будни — работа, суббота и воскресенье — выходные.";
+
+    localStorage.setItem(namesKey, JSON.stringify(names));
+    localStorage.setItem(monthKey, monthInput.value);
+  }
+
+  document.getElementById("generateSchedule")
+    .addEventListener("click", generateSchedule);
+  document.getElementById("printSchedule")
+    .addEventListener("click", function () { window.print(); });
+
+  if (localStorage.getItem(monthKey)) {
+    monthInput.value = localStorage.getItem(monthKey);
+  }
+
+  generateSchedule();
+})();
+</script>
+
 </body>
 </html>
