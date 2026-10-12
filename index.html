@@ -38,3 +38,577 @@ footer { text-align: center; padding: 25px; color: #8993a5; font-size: 12px; }
 <footer>Lavka Control • Панель управления</footer>
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lavka Control — Курьеры</title>
+<style>
+:root {
+  --navy: #142443;
+  --blue: #2857a4;
+  --bg: #f2f5fa;
+  --muted: #718096;
+  --border: #e0e7f0;
+  --green: #16835b;
+  --red: #c43d4b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--navy);
+}
+header {
+  padding: 22px 18px 28px;
+  color: white;
+  background: linear-gradient(135deg, #101c35, #254b87);
+  border-radius: 0 0 25px 25px;
+}
+.header-inner, main {
+  width: min(100%, 1000px);
+  margin: auto;
+}
+.brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.logo-link {
+  display: inline-flex;
+  align-items: center;
+  background: white;
+  padding: 8px 12px;
+  border-radius: 12px;
+}
+.logo-link img {
+  display: block;
+  width: 150px;
+  max-width: 100%;
+  height: auto;
+}
+.brand-label {
+  color: #c8d8f5;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  font-weight: bold;
+}
+h1 { font-size: 29px; margin: 18px 0 6px; }
+header p { color: #d7e3f8; margin: 0; font-size: 14px; }
+main { padding: 22px 15px 36px; }
+.page-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+h2 { margin: 0 0 6px; font-size: 23px; }
+.muted { color: var(--muted); font-size: 13px; line-height: 1.5; }
+.panel {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 18px;
+  margin-top: 17px;
+  box-shadow: 0 5px 18px rgba(20,40,80,.04);
+}
+.btn {
+  border: 0;
+  border-radius: 11px;
+  padding: 12px 15px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn-primary { background: var(--blue); color: white; }
+.btn-light { background: #eaf0fb; color: var(--blue); }
+.btn-danger { background: #fff0f1; color: var(--red); }
+.btn:active { transform: scale(.98); }
+.search-row { display: flex; gap: 10px; margin-top: 15px; }
+input, select {
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #d8e0ec;
+  border-radius: 10px;
+  background: white;
+  color: var(--navy);
+  font-size: 16px;
+}
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 7px;
+}
+.field { min-width: 0; }
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+}
+.form-grid .full { grid-column: 1 / -1; }
+.form-title { margin: 0 0 16px; font-size: 19px; }
+.slot-box {
+  border: 1px solid var(--border);
+  background: #f8faff;
+  border-radius: 13px;
+  padding: 13px;
+  margin-top: 12px;
+}
+.slot-heading {
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+.time-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.form-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 18px; }
+.notice {
+  background: #fff8e5;
+  color: #78561a;
+  border-radius: 10px;
+  padding: 11px;
+  font-size: 12px;
+  line-height: 1.5;
+  margin-top: 14px;
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 17px;
+}
+.stat {
+  background: white;
+  border: 1px solid var(--border);
+  padding: 13px;
+  border-radius: 14px;
+}
+.stat strong { display: block; font-size: 23px; }
+.stat span { color: var(--muted); font-size: 11px; }
+.list-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.courier-card {
+  border: 1px solid var(--border);
+  background: white;
+  border-radius: 15px;
+  padding: 15px;
+  margin-top: 12px;
+}
+.courier-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+.courier-name { font-weight: 800; font-size: 16px; overflow-wrap: anywhere; }
+.bag {
+  background: #eaf1ff;
+  color: #2854a0;
+  padding: 6px 9px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.slot-list { display: grid; gap: 7px; margin-top: 13px; }
+.slot-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  background: #f6f8fc;
+  padding: 10px;
+  border-radius: 9px;
+  font-size: 13px;
+}
+.slot-line span:first-child { color: var(--muted); }
+.card-actions { display: flex; gap: 8px; margin-top: 13px; }
+.card-actions .btn { flex: 1; }
+.empty {
+  text-align: center;
+  padding: 25px 12px;
+  color: var(--muted);
+  font-size: 14px;
+}
+footer { text-align: center; padding: 20px; color: #8993a5; font-size: 11px; }
+.hidden { display: none !important; }
+@media (max-width: 480px) {
+  h1 { font-size: 25px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .form-grid .full { grid-column: auto; }
+  .search-row { flex-direction: column; }
+  .stats { gap: 7px; }
+  .stat { padding: 10px; }
+  .stat strong { font-size: 20px; }
+  .logo-link img { width: 125px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand-row">
+      <a class="logo-link" href="https://lavka.yandex.ru/"
+         target="_blank" rel="noopener noreferrer"
+         aria-label="Яндекс Лавка — официальный сайт">
+        <img
+          src="https://commons.wikimedia.org/wiki/Special:FilePath/Yandex_lavka_new_logo.jpg"
+          alt="Логотип Яндекс Лавки"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+        <span style="display:none;color:#142443;font-weight:bold">Яндекс Лавка</span>
+      </a>
+      <div class="brand-label">УПРАВЛЕНИЕ СКЛАДОМ</div>
+    </div>
+    <h1>Lavka Control</h1>
+    <p>Порядок в каждой смене</p>
+  </div>
+</header>
+
+<main>
+  <section class="page-title">
+    <div>
+      <h2>Курьеры</h2>
+      <div class="muted">Сотрудники, слоты и номера сумок</div>
+    </div>
+    <button class="btn btn-primary" id="addBtn" type="button">＋ Добавить</button>
+  </section>
+
+  <div class="stats">
+    <div class="stat"><strong id="totalCount">0</strong><span>Курьеров</span></div>
+    <div class="stat"><strong id="slotTotal">0</strong><span>Активных слотов</span></div>
+    <div class="stat"><strong id="bagCount">0</strong><span>Указано сумок</span></div>
+  </div>
+
+  <section class="panel hidden" id="formPanel">
+    <h3 class="form-title" id="formTitle">Новый курьер</h3>
+    <form id="courierForm">
+      <input type="hidden" id="editId">
+
+      <div class="form-grid">
+        <div class="field full">
+          <label for="fullName">Фамилия и имя *</label>
+          <input id="fullName" type="text" maxlength="120"
+                 placeholder="Например, Иванов Иван" required>
+        </div>
+
+        <div class="field">
+          <label for="slotCount">Количество слотов</label>
+          <select id="slotCount">
+            <option value="0">0 слотов</option>
+            <option value="1">1 слот</option>
+            <option value="2">2 слота</option>
+            <option value="3" selected>3 слота</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="bagNumber">Номер сумки</label>
+          <input id="bagNumber" type="text" maxlength="40"
+                 placeholder="Например, 125">
+        </div>
+      </div>
+
+      <div class="slot-box" data-slot="1">
+        <div class="slot-heading">Слот 1</div>
+        <div class="time-grid">
+          <div class="field"><label for="s1from">Время с</label><input id="s1from" type="time"></div>
+          <div class="field"><label for="s1to">Время до</label><input id="s1to" type="time"></div>
+        </div>
+      </div>
+
+      <div class="slot-box" data-slot="2">
+        <div class="slot-heading">Слот 2</div>
+        <div class="time-grid">
+          <div class="field"><label for="s2from">Время с</label><input id="s2from" type="time"></div>
+          <div class="field"><label for="s2to">Время до</label><input id="s2to" type="time"></div>
+        </div>
+      </div>
+
+      <div class="slot-box" data-slot="3">
+        <div class="slot-heading">Слот 3</div>
+        <div class="time-grid">
+          <div class="field"><label for="s3from">Время с</label><input id="s3from" type="time"></div>
+          <div class="field"><label for="s3to">Время до</label><input id="s3to" type="time"></div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit" id="saveBtn">Сохранить курьера</button>
+        <button class="btn btn-light" type="button" id="cancelBtn">Отмена</button>
+      </div>
+      <div class="notice">
+        Данные сохраняются в браузере на этом устройстве. Для переноса на другое устройство понадобится отдельная синхронизация или резервная копия.
+      </div>
+    </form>
+  </section>
+
+  <section class="panel">
+    <div class="list-heading">
+      <h3 style="margin:0">Список сотрудников</h3>
+      <span class="muted" id="resultCount">0 записей</span>
+    </div>
+    <div class="search-row">
+      <input id="searchInput" type="search" placeholder="Поиск по ФИО или сумке">
+      <button class="btn btn-light" type="button" id="clearSearch">Сбросить</button>
+    </div>
+    <div id="courierList"></div>
+  </section>
+</main>
+
+<footer>
+  Lavka Control · Внутренний инструмент учёта
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  const STORAGE_KEY = "lavkaControlCouriers_v1";
+  const formPanel = document.getElementById("formPanel");
+  const form = document.getElementById("courierForm");
+  const slotCountInput = document.getElementById("slotCount");
+  const list = document.getElementById("courierList");
+  const searchInput = document.getElementById("searchInput");
+  let couriers = [];
+  let storageAvailable = true;
+
+  function makeId() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+
+  function loadData() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      const parsed = saved ? JSON.parse(saved) : [];
+      couriers = Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+      couriers = [];
+      storageAvailable = false;
+      alert("Не удалось прочитать данные браузера. Проверьте настройки хранения сайта.");
+    }
+  }
+
+  function saveData() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(couriers));
+      storageAvailable = true;
+      return true;
+    } catch (error) {
+      storageAvailable = false;
+      alert("Браузер не смог сохранить данные. Проверьте свободное место и настройки приватного режима.");
+      return false;
+    }
+  }
+
+  function escapeHTML(value) {
+    return String(value == null ? "" : value).replace(/[&<>"']/g, function (ch) {
+      return {
+        "&": "&amp;", "<": "&lt;", ">": "&gt;",
+        '"': "&quot;", "'": "&#39;"
+      }[ch];
+    });
+  }
+
+  function readValue(id) {
+    return document.getElementById(id).value.trim();
+  }
+
+  function updateSlotVisibility() {
+    const count = Number(slotCountInput.value);
+    document.querySelectorAll("[data-slot]").forEach(function (box) {
+      box.classList.toggle("hidden", Number(box.dataset.slot) > count);
+    });
+  }
+
+  function openForm(courier) {
+    form.reset();
+    document.getElementById("editId").value = courier ? courier.id : "";
+    document.getElementById("formTitle").textContent =
+      courier ? "Редактировать курьера" : "Новый курьер";
+    document.getElementById("saveBtn").textContent =
+      courier ? "Сохранить изменения" : "Сохранить курьера";
+
+    if (courier) {
+      document.getElementById("fullName").value = courier.name || "";
+      document.getElementById("bagNumber").value = courier.bag || "";
+      slotCountInput.value = String(courier.slotCount || 0);
+      for (let i = 1; i <= 3; i++) {
+        const slot = courier.slots && courier.slots[i - 1]
+          ? courier.slots[i - 1] : {};
+        document.getElementById("s" + i + "from").value = slot.from || "";
+        document.getElementById("s" + i + "to").value = slot.to || "";
+      }
+    } else {
+      slotCountInput.value = "3";
+    }
+
+    updateSlotVisibility();
+    formPanel.classList.remove("hidden");
+    formPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.getElementById("fullName").focus({ preventScroll: true });
+  }
+
+  function closeForm() {
+    form.reset();
+    document.getElementById("editId").value = "";
+    formPanel.classList.add("hidden");
+    updateSlotVisibility();
+  }
+
+  function render() {
+    const query = searchInput.value.trim().toLocaleLowerCase("ru");
+    const filtered = couriers.filter(function (c) {
+      return (c.name || "").toLocaleLowerCase("ru").includes(query) ||
+        (c.bag || "").toLocaleLowerCase("ru").includes(query);
+    });
+
+    document.getElementById("totalCount").textContent = couriers.length;
+    document.getElementById("slotTotal").textContent =
+      couriers.reduce((sum, c) => sum + Number(c.slotCount || 0), 0);
+    document.getElementById("bagCount").textContent =
+      couriers.filter(c => String(c.bag || "").trim()).length;
+    document.getElementById("resultCount").textContent =
+      filtered.length + " из " + couriers.length;
+
+    if (!filtered.length) {
+      list.innerHTML = '<div class="empty">' +
+        (couriers.length ? "Ничего не найдено. Измените запрос." :
+        "Пока нет курьеров. Нажмите «＋ Добавить», чтобы создать первую запись.") +
+        '</div>';
+      return;
+    }
+
+    list.innerHTML = filtered.map(function (c) {
+      const slots = Array.isArray(c.slots) ? c.slots : [];
+      let slotHTML = "";
+      for (let i = 0; i < Number(c.slotCount || 0); i++) {
+        const s = slots[i] || {};
+        const time = s.from || s.to
+          ? escapeHTML(s.from || "—") + " — " + escapeHTML(s.to || "—")
+          : "Время не указано";
+        slotHTML += '<div class="slot-line"><span>Слот ' + (i + 1) +
+          '</span><strong>' + time + '</strong></div>';
+      }
+      if (!slotHTML) {
+        slotHTML = '<div class="slot-line"><span>Слоты</span><strong>Не назначены</strong></div>';
+      }
+
+      return '<article class="courier-card">' +
+        '<div class="courier-top"><div><div class="courier-name">' +
+        escapeHTML(c.name) + '</div><div class="muted" style="margin-top:5px">' +
+        Number(c.slotCount || 0) + ' слотов</div></div>' +
+        '<div class="bag">Сумка: ' + escapeHTML(c.bag || "—") + '</div></div>' +
+        '<div class="slot-list">' + slotHTML + '</div>' +
+        '<div class="card-actions">' +
+        '<button type="button" class="btn btn-light" data-action="edit" data-id="' +
+        escapeHTML(c.id) + '">✎ Изменить</button>' +
+        '<button type="button" class="btn btn-danger" data-action="delete" data-id="' +
+        escapeHTML(c.id) + '">Удалить</button>' +
+        '</div></article>';
+    }).join("");
+  }
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const name = readValue("fullName");
+    if (!name) {
+      alert("Введите фамилию и имя курьера.");
+      return;
+    }
+
+    const slotCount = Number(slotCountInput.value);
+    const slots = [];
+    for (let i = 1; i <= 3; i++) {
+      const from = readValue("s" + i + "from");
+      const to = readValue("s" + i + "to");
+      if (i <= slotCount && from && to && to <= from) {
+        alert("В слоте " + i + " время окончания должно быть позже времени начала. Для смены через полночь укажите подходящие часы отдельно.");
+        return;
+      }
+      slots.push({
+        from: i <= slotCount ? from : "",
+        to: i <= slotCount ? to : ""
+      });
+    }
+
+    const editId = document.getElementById("editId").value;
+    const existing = editId ? couriers.find(c => c.id === editId) : null;
+    const courier = {
+      id: editId || makeId(),
+      name: name,
+      slotCount: slotCount,
+      slots: slots,
+      bag: readValue("bagNumber"),
+      updatedAt: new Date().toISOString()
+    };
+
+    if (existing) {
+      couriers = couriers.map(c => c.id === editId ? courier : c);
+    } else {
+      couriers.push(courier);
+    }
+
+    if (!saveData()) return;
+    closeForm();
+    render();
+  });
+
+  document.getElementById("addBtn").addEventListener("click", function () {
+    openForm(null);
+  });
+
+  document.getElementById("cancelBtn").addEventListener("click", closeForm);
+  slotCountInput.addEventListener("change", updateSlotVisibility);
+  searchInput.addEventListener("input", render);
+
+  document.getElementById("clearSearch").addEventListener("click", function () {
+    searchInput.value = "";
+    render();
+  });
+
+  list.addEventListener("click", function (event) {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+
+    const id = button.dataset.id;
+    const action = button.dataset.action;
+    const courier = couriers.find(c => c.id === id);
+    if (!courier) return;
+
+    if (action === "edit") {
+      openForm(courier);
+    } else if (action === "delete") {
+      if (!confirm('Удалить курьера «' + courier.name + '»? Это действие нельзя отменить.')) return;
+      couriers = couriers.filter(c => c.id !== id);
+      if (saveData()) render();
+    }
+  });
+
+  loadData();
+  updateSlotVisibility();
+  render();
+
+  if (!storageAvailable) {
+    console.warn("Локальное хранилище недоступно.");
+  }
+})();
+</script>
+</body>
+</html>
