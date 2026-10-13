@@ -642,8 +642,24 @@ footer { text-align: center; padding: 20px; color: #8993a5; font-size: 11px; }
   <div class="schedule-panel">
     <label for="scheduleMonth">Месяц расписания</label><br>
     <input id="scheduleMonth" type="month">
-    <h3>Пять сотрудников</h3>
-    <div class="names">
+    <h3>Штат сотрудников — 15 человек</h3>
+<div class="names">
+  <div><label for="worker1">Сотрудник 1</label><input id="worker1" placeholder="Фамилия и имя"></div>
+  <div><label for="worker2">Сотрудник 2</label><input id="worker2" placeholder="Фамилия и имя"></div>
+  <div><label for="worker3">Сотрудник 3</label><input id="worker3" placeholder="Фамилия и имя"></div>
+  <div><label for="worker4">Сотрудник 4</label><input id="worker4" placeholder="Фамилия и имя"></div>
+  <div><label for="worker5">Сотрудник 5</label><input id="worker5" placeholder="Фамилия и имя"></div>
+  <div><label for="worker6">Сотрудник 6</label><input id="worker6" placeholder="Фамилия и имя"></div>
+  <div><label for="worker7">Сотрудник 7</label><input id="worker7" placeholder="Фамилия и имя"></div>
+  <div><label for="worker8">Сотрудник 8</label><input id="worker8" placeholder="Фамилия и имя"></div>
+  <div><label for="worker9">Сотрудник 9</label><input id="worker9" placeholder="Фамилия и имя"></div>
+  <div><label for="worker10">Сотрудник 10</label><input id="worker10" placeholder="Фамилия и имя"></div>
+  <div><label for="worker11">Сотрудник 11</label><input id="worker11" placeholder="Фамилия и имя"></div>
+  <div><label for="worker12">Сотрудник 12</label><input id="worker12" placeholder="Фамилия и имя"></div>
+  <div><label for="worker13">Сотрудник 13</label><input id="worker13" placeholder="Фамилия и имя"></div>
+  <div><label for="worker14">Сотрудник 14</label><input id="worker14" placeholder="Фамилия и имя"></div>
+  <div><label for="worker15">Сотрудник 15</label><input id="worker15" placeholder="Фамилия и имя"></div>
+</div>
       
     <button type="button" id="generateSchedule">Составить расписание</button>
     <button type="button" id="printSchedule">Печать</button>
@@ -712,7 +728,20 @@ footer { text-align: center; padding: 20px; color: #8993a5; font-size: 11px; }
       const weekday = date.getDay();
       const dateText = String(day).padStart(2, "0") + "." +
         String(month).padStart(2, "0") + "." + year;
-      const isWorkday = weekday >= 1 && weekday <= 5;
+      names.forEach(function (name, index) {
+  let isWorkday;
+
+  if (index < 13) {
+    // Сотрудники 1–13: график 5/2
+    isWorkday = weekday >= 1 && weekday <= 5;
+  } else {
+    // Сотрудники 14–15: график 2/2
+    const startDate = new Date(year, month - 1, 1);
+    const dayNumber = Math.floor(
+      (date - startDate) / 86400000
+    );
+    isWorkday = Math.floor(dayNumber / 2) % 2 === 0;
+  }
 
       names.forEach(function (name) {
         rows += '<tr class="' + (isWorkday ? "workday" : "dayoff") + '">' +
