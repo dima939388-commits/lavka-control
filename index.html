@@ -699,7 +699,7 @@ footer { text-align: center; padding: 20px; color: #8993a5; font-size: 11px; }
     }
 
     const names = [];
-    for (let i = 1; i <= 5; i++) {
+     for (let i = 1; i <= 15; i++) {
       names.push(document.getElementById("worker" + i).value.trim()
         || "Сотрудник " + i);
     }
@@ -748,80 +748,6 @@ footer { text-align: center; padding: 20px; color: #8993a5; font-size: 11px; }
     monthInput.value = localStorage.getItem(monthKey);
   }
 
-  generateSchedule();
-})();
-</script>
-<section id="schedule-section" style="max-width:1000px;margin:25px auto;padding:18px;font-family:Arial,sans-serif;color:#142443">
-  <h2>📅 Расписание сотрудников</h2>
-  <p>График 5/2 · Смена 08:00–16:00</p>
-  <div style="background:#f4f7fc;padding:16px;border-radius:12px">
-    <label for="scheduleMonth">Месяц расписания</label><br>
-    <input id="scheduleMonth" type="month">
-    <h3>Пять сотрудников</h3>
-    <div id="workerNames">
-      <p><input id="worker1" value="Сотрудник 1"></p>
-      <p><input id="worker2" value="Сотрудник 2"></p>
-      <p><input id="worker3" value="Сотрудник 3"></p>
-      <p><input id="worker4" value="Сотрудник 4"></p>
-      <p><input id="worker5" value="Сотрудник 5"></p>
-    </div>
-    <button type="button" id="generateSchedule" style="background:#142443;color:white;padding:12px;border:0;border-radius:8px">Составить расписание</button>
-    <button type="button" id="printSchedule" style="background:#2857a4;color:white;padding:12px;border:0;border-radius:8px">Печать</button>
-    <p id="scheduleMessage">Выбери месяц и составь расписание.</p>
-  </div>
-  <div style="overflow-x:auto;margin-top:16px">
-    <table style="width:100%;border-collapse:collapse;min-width:500px">
-      <thead>
-        <tr style="background:#142443;color:white">
-          <th style="padding:10px">Дата</th>
-          <th style="padding:10px">День</th>
-          <th style="padding:10px">Сотрудник</th>
-          <th style="padding:10px">График</th>
-        </tr>
-      </thead>
-      <tbody id="scheduleBody"></tbody>
-    </table>
-  </div>
-</section>
-<script>
-(function(){
-  const monthInput=document.getElementById("scheduleMonth");
-  const body=document.getElementById("scheduleBody");
-  const message=document.getElementById("scheduleMessage");
-  const weekdays=["Воскресенье","Понедельник","Вторник","Среда","Четверг","Пятница","Суббота"];
-  const now=new Date();
-  monthInput.value=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0");
-
-  function generateSchedule(){
-    if(!monthInput.value)return;
-    const names=[];
-    for(let i=1;i<=5;i++){
-      names.push(document.getElementById("worker"+i).value.trim()||"Сотрудник "+i);
-    }
-    const parts=monthInput.value.split("-");
-    const year=Number(parts[0]),month=Number(parts[1]);
-    const days=new Date(year,month,0).getDate();
-    let rows="";
-    for(let day=1;day<=days;day++){
-      const date=new Date(year,month-1,day);
-      const work=date.getDay()>=1&&date.getDay()<=5;
-      names.forEach(function(name){
-        const safe=name.replace(/[&<>"]/g,function(c){
-          return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];
-        });
-        rows+='<tr style="background:'+(work?'#e7f6ee':'#fff0f1')+'">'+
-          '<td style="padding:8px;border:1px solid #ddd">'+String(day).padStart(2,"0")+"."+String(month).padStart(2,"0")+"."+year+"</td>"+
-          '<td style="padding:8px;border:1px solid #ddd">'+weekdays[date.getDay()]+"</td>"+
-          '<td style="padding:8px;border:1px solid #ddd">'+safe+"</td>"+
-          '<td style="padding:8px;border:1px solid #ddd">'+(work?"08:00–16:00 · Работа":"Выходной")+"</td></tr>";
-      });
-    }
-    body.innerHTML=rows;
-    message.textContent="Расписание составлено на "+days+" дней для пяти сотрудников.";
-  }
-  document.getElementById("generateSchedule").addEventListener("click",generateSchedule);
-  document.getElementById("printSchedule").addEventListener("click",function(){window.print();});
-  monthInput.addEventListener("change",generateSchedule);
   generateSchedule();
 })();
 </script>
