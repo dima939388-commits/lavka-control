@@ -334,243 +334,6 @@ footer { text-align: center; padding: 20px; color: #8993a5; font-size: 11px; }
 <footer>
   Lavka Control · Внутренний инструмент учёта
 </footer>
-
-<script>
-(function () {
-  "use strict";
-
-  const STORAGE_KEY = "lavkaControlCouriers_v1";
-  const formPanel = document.getElementById("formPanel");
-  const form = document.getElementById("courierForm");
-  const slotCountInput = document.getElementById("slotCount");
-  const list = document.getElementById("courierList");
-  const searchInput = document.getElementById("searchInput");
-  let couriers = [];
-  let storageAvailable = true;
-
-  function makeId() {
-    return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-  }
-
-  function loadData() {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      const parsed = saved ? JSON.parse(saved) : [];
-      couriers = Array.isArray(parsed) ? parsed : [];
-    } catch (error) {
-      couriers = [];
-      storageAvailable = false;
-      alert("Не удалось прочитать данные браузера. Проверьте настройки хранения сайта.");
-    }
-  }
-
-  function saveData() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(couriers));
-      storageAvailable = true;
-      return true;
-    } catch (error) {
-      storageAvailable = false;
-      alert("Браузер не смог сохранить данные. Проверьте свободное место и настройки приватного режима.");
-      return false;
-    }
-  }
-
-  function escapeHTML(value) {
-    return String(value == null ? "" : value).replace(/[&<>"']/g, function (ch) {
-      return {
-        "&": "&amp;", "<": "&lt;", ">": "&gt;",
-        '"': "&quot;", "'": "&#39;"
-      }[ch];
-    });
-  }
-
-  function readValue(id) {
-    return document.getElementById(id).value.trim();
-  }
-
-  function updateSlotVisibility() {
-    const count = Number(slotCountInput.value);
-    document.querySelectorAll("[data-slot]").forEach(function (box) {
-      box.classList.toggle("hidden", Number(box.dataset.slot) > count);
-    });
-  }
-
-  function openForm(courier) {
-    form.reset();
-    document.getElementById("editId").value = courier ? courier.id : "";
-    document.getElementById("formTitle").textContent =
-      courier ? "Редактировать курьера" : "Новый курьер";
-    document.getElementById("saveBtn").textContent =
-      courier ? "Сохранить изменения" : "Сохранить курьера";
-
-    if (courier) {
-      document.getElementById("fullName").value = courier.name || "";
-      document.getElementById("bagNumber").value = courier.bag || "";
-      slotCountInput.value = String(courier.slotCount || 0);
-      for (let i = 1; i <= 3; i++) {
-        const slot = courier.slots && courier.slots[i - 1]
-          ? courier.slots[i - 1] : {};
-        document.getElementById("s" + i + "from").value = slot.from || "";
-        document.getElementById("s" + i + "to").value = slot.to || "";
-      }
-    } else {
-      slotCountInput.value = "3";
-    }
-
-    updateSlotVisibility();
-    formPanel.classList.remove("hidden");
-    formPanel.scrollIntoView({ behavior: "smooth", block: "start" });
-    document.getElementById("fullName").focus({ preventScroll: true });
-  }
-
-  function closeForm() {
-    form.reset();
-    document.getElementById("editId").value = "";
-    formPanel.classList.add("hidden");
-    updateSlotVisibility();
-  }
-
-  function render() {
-    const query = searchInput.value.trim().toLocaleLowerCase("ru");
-    const filtered = couriers.filter(function (c) {
-      return (c.name || "").toLocaleLowerCase("ru").includes(query) ||
-        (c.bag || "").toLocaleLowerCase("ru").includes(query);
-    });
-
-    document.getElementById("totalCount").textContent = couriers.length;
-    document.getElementById("slotTotal").textContent =
-      couriers.reduce((sum, c) => sum + Number(c.slotCount || 0), 0);
-    document.getElementById("bagCount").textContent =
-      couriers.filter(c => String(c.bag || "").trim()).length;
-    document.getElementById("resultCount").textContent =
-      filtered.length + " из " + couriers.length;
-
-    if (!filtered.length) {
-      list.innerHTML = '<div class="empty">' +
-        (couriers.length ? "Ничего не найдено. Измените запрос." :
-        "Пока нет курьеров. Нажмите «＋ Добавить», чтобы создать первую запись.") +
-        '</div>';
-      return;
-    }
-
-    list.innerHTML = filtered.map(function (c) {
-      const slots = Array.isArray(c.slots) ? c.slots : [];
-      let slotHTML = "";
-      for (let i = 0; i < Number(c.slotCount || 0); i++) {
-        const s = slots[i] || {};
-        const time = s.from || s.to
-          ? escapeHTML(s.from || "—") + " — " + escapeHTML(s.to || "—")
-          : "Время не указано";
-        slotHTML += '<div class="slot-line"><span>Слот ' + (i + 1) +
-          '</span><strong>' + time + '</strong></div>';
-      }
-      if (!slotHTML) {
-        slotHTML = '<div class="slot-line"><span>Слоты</span><strong>Не назначены</strong></div>';
-      }
-
-      return '<article class="courier-card">' +
-        '<div class="courier-top"><div><div class="courier-name">' +
-        escapeHTML(c.name) + '</div><div class="muted" style="margin-top:5px">' +
-        Number(c.slotCount || 0) + ' слотов</div></div>' +
-        '<div class="bag">Сумка: ' + escapeHTML(c.bag || "—") + '</div></div>' +
-        '<div class="slot-list">' + slotHTML + '</div>' +
-        '<div class="card-actions">' +
-        '<button type="button" class="btn btn-light" data-action="edit" data-id="' +
-        escapeHTML(c.id) + '">✎ Изменить</button>' +
-        '<button type="button" class="btn btn-danger" data-action="delete" data-id="' +
-        escapeHTML(c.id) + '">Удалить</button>' +
-        '</div></article>';
-    }).join("");
-  }
-
-  form.addEventListener("submit", function (event) {
-    event.preventDefault();
-
-    const name = readValue("fullName");
-    if (!name) {
-      alert("Введите фамилию и имя курьера.");
-      return;
-    }
-
-    const slotCount = Number(slotCountInput.value);
-    const slots = [];
-    for (let i = 1; i <= 3; i++) {
-      const from = readValue("s" + i + "from");
-      const to = readValue("s" + i + "to");
-      if (i <= slotCount && from && to && to <= from) {
-        alert("В слоте " + i + " время окончания должно быть позже времени начала. Для смены через полночь укажите подходящие часы отдельно.");
-        return;
-      }
-      slots.push({
-        from: i <= slotCount ? from : "",
-        to: i <= slotCount ? to : ""
-      });
-    }
-
-    const editId = document.getElementById("editId").value;
-    const existing = editId ? couriers.find(c => c.id === editId) : null;
-    const courier = {
-      id: editId || makeId(),
-      name: name,
-      slotCount: slotCount,
-      slots: slots,
-      bag: readValue("bagNumber"),
-      updatedAt: new Date().toISOString()
-    };
-
-    if (existing) {
-      couriers = couriers.map(c => c.id === editId ? courier : c);
-    } else {
-      couriers.push(courier);
-    }
-
-    if (!saveData()) return;
-    closeForm();
-    render();
-  });
-
-  document.getElementById("addBtn").addEventListener("click", function () {
-    openForm(null);
-  });
-
-  document.getElementById("cancelBtn").addEventListener("click", closeForm);
-  slotCountInput.addEventListener("change", updateSlotVisibility);
-  searchInput.addEventListener("input", render);
-
-  document.getElementById("clearSearch").addEventListener("click", function () {
-    searchInput.value = "";
-    render();
-  });
-
-  list.addEventListener("click", function (event) {
-    const button = event.target.closest("button[data-action]");
-    if (!button) return;
-
-    const id = button.dataset.id;
-    const action = button.dataset.action;
-    const courier = couriers.find(c => c.id === id);
-    if (!courier) return;
-
-    if (action === "edit") {
-      openForm(courier);
-    } else if (action === "delete") {
-      if (!confirm('Удалить курьера «' + courier.name + '»? Это действие нельзя отменить.')) return;
-      couriers = couriers.filter(c => c.id !== id);
-      if (saveData()) render();
-    }
-  });
-
-  loadData();
-  updateSlotVisibility();
-  render();
-
-  if (!storageAvailable) {
-    console.warn("Локальное хранилище недоступно.");
-  }
-})();
-</script>
-
 <style>
 #schedule-section {
   max-width: 1000px;
@@ -579,7 +342,6 @@ footer { text-align: center; padding: 20px; color: #8993a5; font-size: 11px; }
   font-family: Arial, sans-serif;
   color: #142443;
 }
-#schedule-section h2 { margin-bottom: 8px; }
 #schedule-section .schedule-panel {
   background: white;
   border: 1px solid #dce4ef;
@@ -587,13 +349,12 @@ footer { text-align: center; padding: 20px; color: #8993a5; font-size: 11px; }
   padding: 16px;
   margin-top: 14px;
 }
-#schedule-section input,
-#schedule-section select {
+#schedule-section input {
+  width: 100%;
   padding: 10px;
   border: 1px solid #ccd6e5;
   border-radius: 8px;
   font-size: 15px;
-  max-width: 100%;
 }
 #schedule-section button {
   padding: 11px 15px;
@@ -604,174 +365,115 @@ footer { text-align: center; padding: 20px; color: #8993a5; font-size: 11px; }
   font-weight: bold;
   margin: 8px 4px 8px 0;
 }
+#schedule-section .names {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(150px,1fr));
+  gap: 10px;
+}
 #schedule-section .schedule-scroll { overflow-x: auto; }
 #schedule-section table {
   width: 100%;
   border-collapse: collapse;
   min-width: 520px;
 }
-#schedule-section th,
-#schedule-section td {
+#schedule-section th, #schedule-section td {
   border: 1px solid #dce4ef;
   padding: 9px;
   text-align: left;
   font-size: 13px;
 }
-#schedule-section th {
-  background: #142443;
-  color: white;
-}
+#schedule-section th { background: #142443; color: white; }
 #schedule-section .workday { background: #e7f6ee; }
 #schedule-section .dayoff { background: #fff0f1; }
-#schedule-section .names {
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(150px,1fr));
-  gap: 10px;
-}
-#schedule-section .names label {
-  display: block;
-  font-size: 12px;
-  margin-bottom: 5px;
-}
 </style>
-
 <section id="schedule-section">
   <h2>📅 Расписание сотрудников</h2>
-  <p>Автоматический график 5/2 · Смена 08:00–16:00</p>
-
+  <p>Смена 08:00–16:00 · Сотрудники 1–13: 5/2 · Сотрудники 14–15: 2/2</p>
   <div class="schedule-panel">
-    <label for="scheduleMonth">Месяц расписания</label><br>
+    <label for="scheduleMonth">Месяц расписания</label>
     <input id="scheduleMonth" type="month">
     <h3>Штат сотрудников — 15 человек</h3>
-<div class="names">
-  <div><label for="worker1">Сотрудник 1</label><input id="worker1" placeholder="Фамилия и имя"></div>
-  <div><label for="worker2">Сотрудник 2</label><input id="worker2" placeholder="Фамилия и имя"></div>
-  <div><label for="worker3">Сотрудник 3</label><input id="worker3" placeholder="Фамилия и имя"></div>
-  <div><label for="worker4">Сотрудник 4</label><input id="worker4" placeholder="Фамилия и имя"></div>
-  <div><label for="worker5">Сотрудник 5</label><input id="worker5" placeholder="Фамилия и имя"></div>
-  <div><label for="worker6">Сотрудник 6</label><input id="worker6" placeholder="Фамилия и имя"></div>
-  <div><label for="worker7">Сотрудник 7</label><input id="worker7" placeholder="Фамилия и имя"></div>
-  <div><label for="worker8">Сотрудник 8</label><input id="worker8" placeholder="Фамилия и имя"></div>
-  <div><label for="worker9">Сотрудник 9</label><input id="worker9" placeholder="Фамилия и имя"></div>
-  <div><label for="worker10">Сотрудник 10</label><input id="worker10" placeholder="Фамилия и имя"></div>
-  <div><label for="worker11">Сотрудник 11</label><input id="worker11" placeholder="Фамилия и имя"></div>
-  <div><label for="worker12">Сотрудник 12</label><input id="worker12" placeholder="Фамилия и имя"></div>
-  <div><label for="worker13">Сотрудник 13</label><input id="worker13" placeholder="Фамилия и имя"></div>
-  <div><label for="worker14">Сотрудник 14</label><input id="worker14" placeholder="Фамилия и имя"></div>
-  <div><label for="worker15">Сотрудник 15</label><input id="worker15" placeholder="Фамилия и имя"></div>
-</div>
-      
+    <div class="names" id="workerNames"></div>
     <button type="button" id="generateSchedule">Составить расписание</button>
     <button type="button" id="printSchedule">Печать</button>
-    <p id="scheduleMessage">Выбери месяц и нажми «Составить расписание».</p>
+    <p id="scheduleMessage">Выбери месяц и составь расписание.</p>
   </div>
-
   <div class="schedule-panel schedule-scroll">
     <table>
-      <thead>
-        <tr>
-          <th>Дата</th>
-          <th>День</th>
-          <th>Сотрудник</th>
-          <th>График</th>
-        </tr>
-      </thead>
-      <tbody id="scheduleBody">
-        <tr><td colspan="4">Расписание ещё не составлено.</td></tr>
-      </tbody>
+      <thead><tr><th>Дата</th><th>День</th><th>Сотрудник</th><th>График</th></tr></thead>
+      <tbody id="scheduleBody"><tr><td colspan="4">Расписание ещё не составлено.</td></tr></tbody>
     </table>
   </div>
 </section>
-
 <script>
 (function () {
   const monthInput = document.getElementById("scheduleMonth");
+  const namesBox = document.getElementById("workerNames");
   const body = document.getElementById("scheduleBody");
   const message = document.getElementById("scheduleMessage");
   const namesKey = "lavkaScheduleNames_v1";
   const monthKey = "lavkaScheduleMonth_v1";
-  const savedNames = JSON.parse(localStorage.getItem(namesKey) || "null");
-
+  let savedNames = [];
+  try {
+    savedNames = JSON.parse(localStorage.getItem(namesKey) || "[]");
+  } catch (e) {}
+  for (let i = 1; i <= 15; i++) {
+    const label = document.createElement("label");
+    label.textContent = "Сотрудник " + i;
+    label.htmlFor = "worker" + i;
+    const input = document.createElement("input");
+    input.id = "worker" + i;
+    input.placeholder = "Фамилия и имя";
+    input.value = savedNames[i - 1] || "";
+    const wrap = document.createElement("div");
+    wrap.appendChild(label);
+    wrap.appendChild(input);
+    namesBox.appendChild(wrap);
+  }
   const now = new Date();
-  monthInput.value = now.getFullYear() + "-" +
-    String(now.getMonth() + 1).padStart(2, "0");
-
-  if (Array.isArray(savedNames)) {
-    savedNames.forEach(function (name, i) {
-      const input = document.getElementById("worker" + (i + 1));
-      if (input) input.value = name;
+  monthInput.value = localStorage.getItem(monthKey) ||
+    now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0");
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
     });
   }
-
   function generateSchedule() {
     if (!monthInput.value) {
       message.textContent = "Сначала выбери месяц.";
       return;
     }
-
     const names = [];
-     for (let i = 1; i <= 15; i++) {
-      names.push(document.getElementById("worker" + i).value.trim()
-        || "Сотрудник " + i);
+    for (let i = 1; i <= 15; i++) {
+      names.push(document.getElementById("worker" + i).value.trim() || "Сотрудник " + i);
     }
-
-    const [year, month] = monthInput.value.split("-").map(Number);
+    const parts = monthInput.value.split("-").map(Number);
+    const year = parts[0], month = parts[1];
     const days = new Date(year, month, 0).getDate();
-    const weekdays = [
-      "Воскресенье", "Понедельник", "Вторник",
-      "Среда", "Четверг", "Пятница", "Суббота"
-    ];
+    const weekdays = ["Воскресенье","Понедельник","Вторник","Среда","Четверг","Пятница","Суббота"];
     let rows = "";
-
     for (let day = 1; day <= days; day++) {
       const date = new Date(year, month - 1, day);
       const weekday = date.getDay();
-      const dateText = String(day).padStart(2, "0") + "." +
-        String(month).padStart(2, "0") + "." + year;
+      const dateText = String(day).padStart(2,"0") + "." + String(month).padStart(2,"0") + "." + year;
       names.forEach(function (name, index) {
-  let isWorkday;
-
-  if (index < 13) {
-    // Сотрудники 1–13: график 5/2
-    isWorkday = weekday >= 1 && weekday <= 5;
-  } else {
-    // Сотрудники 14–15: график 2/2
-    const startDate = new Date(year, month - 1, 1);
-    const dayNumber = Math.floor(
-      (date - startDate) / 86400000
-    );
-    isWorkday = Math.floor(dayNumber / 2) % 2 === 0;
-  }
-
-      names.forEach(function (name) {
+        const isWorkday = index < 13
+          ? weekday >= 1 && weekday <= 5
+          : Math.floor((day - 1) / 2) % 2 === 0;
+        const label = index < 13 ? "5/2 · 08:00–16:00 · Работа" : "2/2 · 08:00–16:00 · Работа";
         rows += '<tr class="' + (isWorkday ? "workday" : "dayoff") + '">' +
-          "<td>" + dateText + "</td>" +
-          "<td>" + weekdays[weekday] + "</td>" +
-          "<td>" + name.replace(/[&<>"]/g, function (c) {
-            return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];
-          }) + "</td>" +
-          "<td>" + (isWorkday ? "08:00–16:00 · Работа" : "Выходной") + "</td>" +
-          "</tr>";
+          "<td>" + dateText + "</td><td>" + weekdays[weekday] + "</td>" +
+          "<td>" + esc(name) + "</td><td>" +
+          (isWorkday ? label : "Выходной") + "</td></tr>";
       });
     }
-
     body.innerHTML = rows;
-    message.textContent = "Готово! Показано " + days +
-      " дней для 5 сотрудников. Будни — работа, суббота и воскресенье — выходные.";
-
+    message.textContent = "Готово! Расписание составлено на " + days + " дней.";
     localStorage.setItem(namesKey, JSON.stringify(names));
     localStorage.setItem(monthKey, monthInput.value);
   }
-
-  document.getElementById("generateSchedule")
-    .addEventListener("click", generateSchedule);
-  document.getElementById("printSchedule")
-    .addEventListener("click", function () { window.print(); });
-
-  if (localStorage.getItem(monthKey)) {
-    monthInput.value = localStorage.getItem(monthKey);
-  }
-
+  document.getElementById("generateSchedule").addEventListener("click", generateSchedule);
+  document.getElementById("printSchedule").addEventListener("click", function () { window.print(); });
   generateSchedule();
 })();
 </script>
