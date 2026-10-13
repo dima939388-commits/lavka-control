@@ -339,6 +339,24 @@ footer { text-align: center; padding: 20px; color: #8993a5; font-size: 11px; }
     <div id="courierList"></div>
   </section>
 </main>
+<section id="warehouse-team" style="margin:24px 0;padding:20px;background:#f1f5f9;border-radius:16px;border:1px solid #cbd5e1;">
+  <h2 style="color:#12305a;">🏬 Сотрудники склада</h2>
+  <p>Добавление сотрудников и должностей</p>
+  <form id="warehouse-form">
+    <input id="warehouse-name" type="text" placeholder="Фамилия и имя" required style="width:100%;padding:12px;margin:6px 0;border-radius:8px;border:1px solid #94a3b8;">
+    <select id="warehouse-role" style="width:100%;padding:12px;margin:6px 0;border-radius:8px;border:1px solid #94a3b8;">
+      <option value="Сборщик">Сборщик</option>
+      <option value="Приёмка">Приёмка</option>
+      <option value="Отгрузка">Отгрузка</option>
+      <option value="Старший смены">Старший смены</option>
+      <option value="Другое">Другое</option>
+    </select>
+    <button type="submit" style="width:100%;padding:12px;background:#12305a;color:white;border:0;border-radius:8px;">Добавить сотрудника</button>
+  </form>
+  <p id="warehouse-message"></p>
+  <h3>Список сотрудников: <span id="warehouse-count">0</span></h3>
+  <div id="warehouse-list"></div>
+</section>
 
 <footer>
   Lavka Control · Внутренний инструмент учёта
