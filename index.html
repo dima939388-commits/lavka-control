@@ -802,6 +802,150 @@ footer { text-align: center; padding: 20px; color: #8993a5; font-size: 11px; }
 })();
 </script>
 
+<section id="manager-analytics" style="margin:20px 0;padding:20px;background:#f2f5fa;border-radius:16px;font-family:Arial,sans-serif;color:#142443;">
+  <h2 style="background:#142443;color:white;padding:16px;border-radius:12px;margin-top:0;">📊 Панель руководителя</h2>
+  <p style="color:#52627c;">Личная статистика, рейтинг курьеров и отчёты склада</p>
+
+  <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+    <label>Период
+      <select id="ma-period" style="display:block;padding:10px;border-radius:8px;">
+        <option value="all">Всё время</option>
+        <option value="day">За день</option>
+        <option value="month">За месяц</option>
+      </select>
+    </label>
+    <label>Дата отчёта
+      <input id="ma-date" type="date" style="display:block;padding:10px;border-radius:8px;">
+    </label>
+    <label>Сотрудник
+      <select id="ma-employee" style="display:block;padding:10px;border-radius:8px;max-width:220px;">
+        <option value="all">Все сотрудники</option>
+      </select>
+    </label>
+  </div>
+
+  <div id="ma-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;"></div>
+
+  <h3>👤 Личная статистика сотрудника</h3>
+  <div id="ma-personal" style="background:white;padding:14px;border-radius:10px;">Выбери сотрудника выше.</div>
+
+  <h3>🏆 Рейтинг курьеров</h3>
+  <div id="ma-ranking" style="background:white;padding:14px;border-radius:10px;overflow-x:auto;"></div>
+
+  <h3>📅 История отчётов</h3>
+  <div id="ma-history" style="background:white;padding:14px;border-radius:10px;overflow-x:auto;"></div>
+
+  <p style="font-size:12px;color:#667085;">Данные берутся из сохранённых отчётов Lavka Control в этом браузере. Для общей статистики отчёты нужно предварительно внести и сохранить.</p>
+</section>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const period = $('ma-period');
+  const dateInput = $('ma-date');
+  const employee = $('ma-employee');
+
+  const now = new Date();
+  dateInput.value = [
+    now.getFullYear(),
+    String(now.getMonth()+1).padStart(2,'0'),
+    String(now.getDate()).padStart(2,'0')
+  ].join('-');
+
+  function getReports(){
+    try {
+      const data = JSON.parse(localStorage.getItem('lavkaAnalyticsReports_v1') || '[]');
+      return Array.isArray(data) ? data : [];
+    } catch(e) {
+      return [];
+    }
+  }
+
+  function esc(value){
+    return String(value ?? '').replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+  }
+
+  function render(){
+    const reports = getReports().map(r => ({
+      date: String(r.date || ''),
+      name: String(r.name || r.employee || r.employeeName || r.courier || r.fio || r.fullName || 'Не указано'),
+      orders: Number(r.orders) || 0,
+      hours: Number(r.hours) || 0,
+      errors: Number(r.errors) || 0
+    }));
+
+    const selectedDate = dateInput.value;
+    const selectedPeriod = period.value;
+    const matching = reports.filter(r => {
+      if(selectedPeriod === 'day' && r.date !== selectedDate) return false;
+      if(selectedPeriod === 'month' && r.date.slice(0,7) !== selectedDate.slice(0,7)) return false;
+      return true;
+    });
+
+    const names = [...new Set(reports.map(r => r.name))].sort((a,b)=>a.localeCompare(b,'ru'));
+    const oldChoice = employee.value;
+    employee.innerHTML = '<option value="all">Все сотрудники</option>' +
+      names.map(n => '<option value="'+esc(n)+'">'+esc(n)+'</option>').join('');
+    if(names.includes(oldChoice)) employee.value = oldChoice;
+
+    const visible = matching.filter(r => employee.value === 'all' || r.name === employee.value);
+    const total = key => visible.reduce((sum,r)=>sum+r[key],0);
+    const orders = total('orders');
+    const hours = total('hours');
+    const errors = total('errors');
+    const productivity = hours ? (orders/hours).toFixed(1) : '0';
+
+    const cards = [
+      ['Заказы',orders],['Часы',hours],['Заказы/час',productivity],['Ошибки',errors]
+    ];
+    $('ma-kpis').innerHTML = cards.map(c =>
+      '<div style="background:white;padding:16px;border-radius:12px;border-top:4px solid #2857a4;">' +
+      '<div style="color:#667085;font-size:13px;">'+c[0]+'</div>' +
+      '<strong style="font-size:25px;">'+c[1]+'</strong></div>'
+    ).join('');
+
+    if(employee.value !== 'all'){
+      const mine = visible;
+      const mo = mine.reduce((s,r)=>s+r.orders,0);
+      const mh = mine.reduce((s,r)=>s+r.hours,0);
+      const me = mine.reduce((s,r)=>s+r.errors,0);
+      $('ma-personal').innerHTML = '<strong>'+esc(employee.value)+'</strong><p>Отчётов: '+mine.length+
+        '</p><p>Заказы: '+mo+'</p><p>Отработано часов: '+mh+
+        '</p><p>Производительность: '+(mh?(mo/mh).toFixed(1):'0')+' заказов/час</p><p>Ошибки: '+me+'</p>';
+    } else {
+      $('ma-personal').textContent = 'Выбери конкретного сотрудника в списке выше.';
+    }
+
+    const stats = {};
+    matching.forEach(r => {
+      if(!stats[r.name]) stats[r.name] = {orders:0,hours:0,errors:0,reports:0};
+      stats[r.name].orders += r.orders;
+      stats[r.name].hours += r.hours;
+      stats[r.name].errors += r.errors;
+      stats[r.name].reports++;
+    });
+
+    const ranking = Object.entries(stats).sort((a,b)=>b[1].orders-a[1].orders);
+    $('ma-ranking').innerHTML = ranking.length
+      ? '<table style="width:100%;border-collapse:collapse;"><tr><th style="text-align:left;padding:8px;">Сотрудник</th><th>Заказы</th><th>Часы</th><th>Заказы/час</th><th>Ошибки</th></tr>'+
+        ranking.map((item,i)=>'<tr style="border-top:1px solid #dce3ed;"><td style="padding:8px;">'+(i+1)+'. '+esc(item[0])+'</td><td style="text-align:center;">'+item[1].orders+'</td><td style="text-align:center;">'+item[1].hours+'</td><td style="text-align:center;">'+(item[1].hours?(item[1].orders/item[1].hours).toFixed(1):'0')+'</td><td style="text-align:center;">'+item[1].errors+'</td></tr>').join('')+'</table>'
+      : 'Пока нет отчётов за выбранный период.';
+
+    const history = [...visible].sort((a,b)=>b.date.localeCompare(a.date));
+    $('ma-history').innerHTML = history.length
+      ? '<table style="width:100%;border-collapse:collapse;"><tr><th style="text-align:left;padding:8px;">Дата</th><th>Сотрудник</th><th>Заказы</th><th>Часы</th><th>Ошибки</th></tr>'+
+        history.map(r=>'<tr style="border-top:1px solid #dce3ed;"><td style="padding:8px;">'+esc(r.date)+'</td><td>'+esc(r.name)+'</td><td style="text-align:center;">'+r.orders+'</td><td style="text-align:center;">'+r.hours+'</td><td style="text-align:center;">'+r.errors+'</td></tr>').join('')+'</table>'
+      : 'История пока пустая.';
+  }
+
+  period.addEventListener('change',render);
+  dateInput.addEventListener('change',render);
+  employee.addEventListener('change',render);
+  render();
+})();
+</script>
 </body>
 </html>
 
