@@ -360,450 +360,387 @@ footer { text-align: center; padding: 20px; color: #8993a5; font-size: 11px; }
 <footer>
   Lavka Control · Внутренний инструмент учёта
 </footer>
+
 <style>
 #schedule-section {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 24px auto;
-  padding: 18px;
+  padding: 16px;
   font-family: Arial, sans-serif;
   color: #142443;
 }
-#schedule-section .schedule-panel {
-  background: white;
-  border: 1px solid #dce4ef;
+#schedule-section * { box-sizing: border-box; }
+#schedule-section .sc-head {
+  background: #142443;
+  color: white;
+  padding: 20px;
   border-radius: 16px;
-  padding: 16px;
-  margin-top: 14px;
+  margin-bottom: 16px;
 }
-#schedule-section input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccd6e5;
+#schedule-section .sc-head h2 { margin: 0 0 8px; }
+#schedule-section .sc-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: end;
+  margin-bottom: 16px;
+}
+#schedule-section label {
+  display: block;
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+#schedule-section input,
+#schedule-section select,
+#schedule-section button {
+  font: inherit;
   border-radius: 8px;
-  font-size: 15px;
+  padding: 10px;
+}
+#schedule-section input,
+#schedule-section select {
+  border: 1px solid #ccd6e5;
+  background: white;
+  color: #142443;
+  min-width: 0;
 }
 #schedule-section button {
-  padding: 11px 15px;
-  background: #2857a4;
-  color: white;
   border: 0;
-  border-radius: 9px;
+  cursor: pointer;
   font-weight: bold;
-  margin: 8px 4px 8px 0;
 }
-#schedule-section .names {
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(150px,1fr));
+#schedule-section .sc-primary {
+  background: #2459a9;
+  color: white;
+}
+#schedule-section .sc-danger {
+  background: #fff0f0;
+  color: #a52b36;
+}
+#schedule-section .sc-panel {
+  background: white;
+  border: 1px solid #dce4ef;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 14px #1424430c;
+}
+#schedule-section .sc-person-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
   gap: 10px;
+  margin-bottom: 14px;
 }
-#schedule-section .schedule-scroll { overflow-x: auto; }
+#schedule-section .sc-person-head .sc-name {
+  flex: 1;
+  min-width: 180px;
+}
+#schedule-section .sc-table-wrap {
+  overflow-x: auto;
+  border: 1px solid #dce4ef;
+  border-radius: 10px;
+}
 #schedule-section table {
   width: 100%;
+  min-width: 620px;
   border-collapse: collapse;
-  min-width: 520px;
-}
-#schedule-section th, #schedule-section td {
-  border: 1px solid #dce4ef;
-  padding: 9px;
-  text-align: left;
   font-size: 13px;
 }
-#schedule-section th { background: #142443; color: white; }
-#schedule-section .workday { background: #e7f6ee; }
-#schedule-section .dayoff { background: #fff0f1; }
+#schedule-section th {
+  background: #142443;
+  color: white;
+  padding: 11px 8px;
+  text-align: left;
+  white-space: nowrap;
+}
+#schedule-section td {
+  padding: 7px;
+  border-bottom: 1px solid #e5eaf2;
+}
+#schedule-section tbody tr:nth-child(even) { background: #f5f8fc; }
+#schedule-section td:first-child {
+  font-weight: bold;
+  white-space: nowrap;
+}
+#schedule-section .sc-status { width: 125px; }
+#schedule-section .sc-time { width: 115px; }
+#schedule-section .sc-empty {
+  padding: 24px;
+  text-align: center;
+  color: #64748b;
+}
+#schedule-section .sc-note {
+  color: #64748b;
+  font-size: 12px;
+}
+@media print {
+  #schedule-section .sc-tools,
+  #schedule-section .sc-add,
+  #schedule-section .sc-danger { display: none !important; }
+  #schedule-section .sc-panel { break-inside: avoid; box-shadow: none; }
+}
 </style>
+
 <section id="schedule-section">
-  <h2>📅 Расписание сотрудников</h2>
-  <p>Смена 08:00–16:00 · Сотрудники 1–13: 5/2 · Сотрудники 14–15: 2/2</p>
-  <div class="schedule-panel">
-    <label for="scheduleMonth">Месяц расписания</label>
-    <input id="scheduleMonth" type="month">
-    <h3>Штат сотрудников — 15 человек</h3>
-    <div class="names" id="workerNames"></div>
-    <button type="button" id="generateSchedule">Составить расписание</button>
-    <button type="button" id="printSchedule">Печать</button>
-    <p id="scheduleMessage">Выбери месяц и составь расписание.</p>
+  <div class="sc-head">
+    <div style="font-size:12px;color:#bcd0f5;margin-bottom:8px;">
+      LAVKA CONTROL · STAFF SCHEDULE
+    </div>
+    <h2>График сотрудников склада</h2>
+    <div>Добавляй сотрудников и заполняй график на каждый месяц вручную.</div>
   </div>
-  <div class="schedule-panel schedule-scroll">
-    <table>
-      <thead><tr><th>Дата</th><th>День</th><th>Сотрудник</th><th>График</th></tr></thead>
-      <tbody id="scheduleBody"><tr><td colspan="4">Расписание ещё не составлено.</td></tr></tbody>
-    </table>
+
+  <div class="sc-panel">
+    <div class="sc-tools">
+      <div>
+        <label for="sc-month">Месяц графика</label>
+        <input id="sc-month" type="month">
+      </div>
+      <div class="sc-add" style="flex:1;min-width:200px;">
+        <label for="sc-new-name">Новый сотрудник</label>
+        <input id="sc-new-name" placeholder="Фамилия и имя" style="width:100%;">
+      </div>
+      <button class="sc-primary sc-add" id="sc-add-person">
+        + Добавить сотрудника
+      </button>
+      <button class="sc-primary" id="sc-print">Печать</button>
+    </div>
+    <div class="sc-note">
+      Изменения сохраняются в этом браузере автоматически.
+    </div>
   </div>
+
+  <div id="sc-people"></div>
 </section>
+
 <script>
 (function () {
-  const monthInput = document.getElementById("scheduleMonth");
-  const namesBox = document.getElementById("workerNames");
-  const body = document.getElementById("scheduleBody");
-  const message = document.getElementById("scheduleMessage");
-  const namesKey = "lavkaScheduleNames_v1";
-  const monthKey = "lavkaScheduleMonth_v1";
-  let savedNames = [];
-  try {
-    savedNames = JSON.parse(localStorage.getItem(namesKey) || "[]");
-  } catch (e) {}
-  for (let i = 1; i <= 15; i++) {
-    const label = document.createElement("label");
-    label.textContent = "Сотрудник " + i;
-    label.htmlFor = "worker" + i;
-    const input = document.createElement("input");
-    input.id = "worker" + i;
-    input.placeholder = "Фамилия и имя";
-    input.value = savedNames[i - 1] || "";
-    const wrap = document.createElement("div");
-    wrap.appendChild(label);
-    wrap.appendChild(input);
-    namesBox.appendChild(wrap);
+  const peopleBox = document.getElementById("sc-people");
+  const monthInput = document.getElementById("sc-month");
+  const nameInput = document.getElementById("sc-new-name");
+  const peopleKey = "lavkaStaffPeople_v2";
+  const schedulesKey = "lavkaStaffSchedules_v2";
+  const monthKey = "lavkaStaffMonth_v2";
+
+  function read(key, fallback) {
+    try {
+      return JSON.parse(localStorage.getItem(key)) || fallback;
+    } catch (e) {
+      return fallback;
+    }
   }
-  const now = new Date();
+
+  let people = read(peopleKey, []);
+  let schedules = read(schedulesKey, {});
+  const today = new Date();
   monthInput.value = localStorage.getItem(monthKey) ||
-    now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0");
-  function esc(s) {
-    return String(s).replace(/[&<>"']/g, function (c) {
-      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    today.getFullYear() + "-" +
+    String(today.getMonth() + 1).padStart(2, "0");
+
+  function savePeople() {
+    localStorage.setItem(peopleKey, JSON.stringify(people));
+  }
+
+  function saveSchedules() {
+    localStorage.setItem(schedulesKey, JSON.stringify(schedules));
+  }
+
+  function esc(value) {
+    return String(value).replace(/[&<>"']/g, function (c) {
+      return {
+        "&": "&amp;", "<": "&lt;", ">": "&gt;",
+        '"': "&quot;", "'": "&#39;"
+      }[c];
     });
   }
-  function generateSchedule() {
-    if (!monthInput.value) {
-      message.textContent = "Сначала выбери месяц.";
-      return;
-    }
-    const names = [];
-    for (let i = 1; i <= 15; i++) {
-      names.push(document.getElementById("worker" + i).value.trim() || "Сотрудник " + i);
-    }
-    const parts = monthInput.value.split("-").map(Number);
-    const year = parts[0], month = parts[1];
-    const days = new Date(year, month, 0).getDate();
-    const weekdays = ["Воскресенье","Понедельник","Вторник","Среда","Четверг","Пятница","Суббота"];
-    let rows = "";
-    for (let day = 1; day <= days; day++) {
-      const date = new Date(year, month - 1, day);
-      const weekday = date.getDay();
-      const dateText = String(day).padStart(2,"0") + "." + String(month).padStart(2,"0") + "." + year;
-      names.forEach(function (name, index) {
-        const isWorkday = index < 13
-          ? weekday >= 1 && weekday <= 5
-          : Math.floor((day - 1) / 2) % 2 === 0;
-        const label = index < 13 ? "5/2 · 08:00–16:00 · Работа" : "2/2 · 08:00–16:00 · Работа";
-        rows += '<tr class="' + (isWorkday ? "workday" : "dayoff") + '">' +
-          "<td>" + dateText + "</td><td>" + weekdays[weekday] + "</td>" +
-          "<td>" + esc(name) + "</td><td>" +
-          (isWorkday ? label : "Выходной") + "</td></tr>";
-      });
-    }
-    body.innerHTML = rows;
-    message.textContent = "Готово! Расписание составлено на " + days + " дней.";
-    localStorage.setItem(namesKey, JSON.stringify(names));
-    localStorage.setItem(monthKey, monthInput.value);
-  }
-  document.getElementById("generateSchedule").addEventListener("click", generateSchedule);
-  document.getElementById("printSchedule").addEventListener("click", function () { window.print(); });
-  generateSchedule();
-})();
-</script>
 
-<section id="lavka-analytics" style="max-width:1000px;margin:24px auto;padding:18px;font-family:Arial,sans-serif;color:#142443;">
-  <div style="background:#142443;color:white;padding:20px;border-radius:16px;">
-    <div style="font-size:12px;color:#bcd0f5;">LAVKA CONTROL · REPORTS</div>
-    <h2 style="margin:8px 0;">Аналитика склада</h2>
-    <p style="margin:0;color:#d7e3f8;">Показатели сотрудников за смену</p>
-  </div>
-
-  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px;">
-    <div style="background:white;border:1px solid #e0e7f0;border-radius:12px;padding:14px;">
-      <div style="font-size:12px;color:#718096;">Заказов обработано</div>
-      <strong id="la-orders" style="font-size:25px;">0</strong>
-    </div>
-    <div style="background:white;border:1px solid #e0e7f0;border-radius:12px;padding:14px;">
-      <div style="font-size:12px;color:#718096;">Часов отработано</div>
-      <strong id="la-hours" style="font-size:25px;">0</strong>
-    </div>
-    <div style="background:white;border:1px solid #e0e7f0;border-radius:12px;padding:14px;">
-      <div style="font-size:12px;color:#718096;">Производительность</div>
-      <strong id="la-iph" style="font-size:25px;">0</strong>
-      <div style="font-size:11px;color:#718096;">заказов в час</div>
-    </div>
-    <div style="background:white;border:1px solid #e0e7f0;border-radius:12px;padding:14px;">
-      <div style="font-size:12px;color:#718096;">Ошибок за смену</div>
-      <strong id="la-errors" style="font-size:25px;color:#c43d4b;">0</strong>
-    </div>
-  </div>
-
-  <div style="background:white;border:1px solid #e0e7f0;border-radius:16px;padding:16px;margin-top:14px;">
-    <h3>Добавить отчёт сотрудника</h3>
-    <form id="la-form">
-      <label for="la-date">Дата смены</label>
-      <input id="la-date" type="date" required style="width:100%;padding:12px;margin:6px 0 12px;border:1px solid #d8e0ec;border-radius:9px;font-size:16px;">
-
-      <label for="la-name">Фамилия и имя</label>
-      <input id="la-name" type="text" required placeholder="Имя сотрудника" style="width:100%;padding:12px;margin:6px 0 12px;border:1px solid #d8e0ec;border-radius:9px;font-size:16px;">
-
-      <label for="la-order-input">Обработано заказов</label>
-      <input id="la-order-input" type="number" min="0" step="1" required placeholder="Например, 450" style="width:100%;padding:12px;margin:6px 0 12px;border:1px solid #d8e0ec;border-radius:9px;font-size:16px;">
-
-      <label for="la-hour-input">Отработано часов</label>
-      <input id="la-hour-input" type="number" min="0.1" max="24" step="0.1" required placeholder="Например, 8" style="width:100%;padding:12px;margin:6px 0 12px;border:1px solid #d8e0ec;border-radius:9px;font-size:16px;">
-
-      <label for="la-error-input">Количество ошибок</label>
-      <input id="la-error-input" type="number" min="0" step="1" value="0" required style="width:100%;padding:12px;margin:6px 0 16px;border:1px solid #d8e0ec;border-radius:9px;font-size:16px;">
-
-      <button type="submit" style="width:100%;padding:13px;background:#2857a4;color:white;border:0;border-radius:10px;font-weight:bold;font-size:15px;">Сохранить отчёт</button>
-    </form>
-    <p id="la-message" style="font-size:13px;color:#16835b;"></p>
-  </div>
-
-  <div style="background:white;border:1px solid #e0e7f0;border-radius:16px;padding:16px;margin-top:14px;">
-    <h3>История отчётов</h3>
-    <div style="overflow-x:auto;">
-      <table style="width:100%;border-collapse:collapse;min-width:540px;font-size:13px;">
-        <thead>
-          <tr style="background:#142443;color:white;">
-            <th style="padding:10px;text-align:left;">Дата</th>
-            <th style="padding:10px;text-align:left;">Сотрудник</th>
-            <th style="padding:10px;">Заказы</th>
-            <th style="padding:10px;">Часы</th>
-            <th style="padding:10px;">Ошибки</th>
-          </tr>
-        </thead>
-        <tbody id="la-history"></tbody>
-      </table>
-    </div>
-    <p id="la-empty" style="color:#718096;font-size:13px;">Пока отчётов нет.</p>
-  </div>
-  <p style="font-size:11px;color:#718096;">Данные хранятся локально в браузере этого устройства. Это ручной учёт, не автоматическая выгрузка из системы склада.</p>
-</section>
-
-<script>
-(function () {
-  const key = "lavkaAnalyticsReports_v1";
-  const $ = id => document.getElementById(id);
-  let reports = [];
-
-  try {
-    reports = JSON.parse(localStorage.getItem(key) || "[]");
-    if (!Array.isArray(reports)) reports = [];
-  } catch (e) {
-    reports = [];
+  function getMonthData() {
+    const month = monthInput.value;
+    if (!schedules[month]) schedules[month] = {};
+    return schedules[month];
   }
 
-  const now = new Date();
-  $("la-date").value =
-    now.getFullYear() + "-" +
-    String(now.getMonth() + 1).padStart(2, "0") + "-" +
-    String(now.getDate()).padStart(2, "0");
+  function getDayData(personId, day) {
+    const monthData = getMonthData();
+    if (!monthData[personId]) monthData[personId] = {};
+    if (!monthData[personId][day]) {
+      monthData[personId][day] = {
+        status: "work",
+        start: "08:00",
+        end: "16:00"
+      };
+    }
+    return monthData[personId][day];
+  }
 
   function render() {
-    const orders = reports.reduce((s, r) => s + r.orders, 0);
-    const hours = reports.reduce((s, r) => s + r.hours, 0);
-    const errors = reports.reduce((s, r) => s + r.errors, 0);
+    if (!monthInput.value) {
+      peopleBox.innerHTML =
+        '<div class="sc-panel sc-empty">Выбери месяц.</div>';
+      return;
+    }
 
-    $("la-orders").textContent = orders.toLocaleString("ru-RU");
-    $("la-hours").textContent = Number(hours.toFixed(1)).toLocaleString("ru-RU");
-    $("la-iph").textContent = hours ? (orders / hours).toFixed(1).replace(".", ",") : "0";
-    $("la-errors").textContent = errors.toLocaleString("ru-RU");
+    const parts = monthInput.value.split("-").map(Number);
+    const year = parts[0];
+    const month = parts[1];
+    const days = new Date(year, month, 0).getDate();
+    const weekdays = [
+      "Воскресенье", "Понедельник", "Вторник",
+      "Среда", "Четверг", "Пятница", "Суббота"
+    ];
 
-    const history = $("la-history");
-    history.replaceChildren();
+    peopleBox.innerHTML = "";
 
-    reports.slice().reverse().forEach(r => {
-      const tr = document.createElement("tr");
-      [r.date, r.name, r.orders, r.hours, r.errors].forEach(value => {
-        const td = document.createElement("td");
-        td.style.cssText = "padding:10px;border-bottom:1px solid #e0e7f0;";
-        td.textContent = value;
-        tr.appendChild(td);
-      });
-      history.appendChild(tr);
+    if (!people.length) {
+      peopleBox.innerHTML =
+        '<div class="sc-panel sc-empty">' +
+        'Пока сотрудников нет. Добавь первого сотрудника выше.' +
+        '</div>';
+      return;
+    }
+
+    people.forEach(function (person) {
+      const card = document.createElement("div");
+      card.className = "sc-panel";
+
+      let html =
+        '<div class="sc-person-head">' +
+          '<div class="sc-name">' +
+            '<label>Фамилия и имя</label>' +
+            '<input class="sc-person-name" data-id="' +
+              esc(person.id) + '" value="' + esc(person.name) +
+              '" style="width:100%;">' +
+          '</div>' +
+          '<button class="sc-danger sc-remove" data-id="' +
+            esc(person.id) + '">Удалить сотрудника</button>' +
+        '</div>' +
+        '<div class="sc-table-wrap"><table>' +
+        '<thead><tr>' +
+          '<th>Дата</th><th>День недели</th>' +
+          '<th>Статус</th><th>Начало</th><th>Окончание</th>' +
+        '</tr></thead><tbody>';
+
+      for (let day = 1; day <= days; day++) {
+        const date = new Date(year, month - 1, day);
+        const dateText =
+          String(day).padStart(2, "0") + "." +
+          String(month).padStart(2, "0") + "." + year;
+        const data = getDayData(person.id, day);
+
+        html +=
+          '<tr>' +
+            '<td>' + dateText + '</td>' +
+            '<td>' + weekdays[date.getDay()] + '</td>' +
+            '<td><select class="sc-status" data-id="' +
+              esc(person.id) + '" data-day="' + day + '">' +
+              '<option value="work" ' +
+                (data.status === "work" ? "selected" : "") +
+                '>Работа</option>' +
+              '<option value="off" ' +
+                (data.status === "off" ? "selected" : "") +
+                '>Выходной</option>' +
+            '</select></td>' +
+            '<td><input type="time" class="sc-time" data-field="start" ' +
+              'data-id="' + esc(person.id) + '" data-day="' + day +
+              '" value="' + esc(data.start || "08:00") + '"></td>' +
+            '<td><input type="time" class="sc-time" data-field="end" ' +
+              'data-id="' + esc(person.id) + '" data-day="' + day +
+              '" value="' + esc(data.end || "16:00") + '"></td>' +
+          '</tr>';
+      }
+
+      html += '</tbody></table></div>';
+      card.innerHTML = html;
+      peopleBox.appendChild(card);
     });
 
-    $("la-empty").style.display = reports.length ? "none" : "block";
+    peopleBox.querySelectorAll(".sc-person-name").forEach(function (input) {
+      input.addEventListener("change", function () {
+        const person = people.find(p => p.id === input.dataset.id);
+        if (person) {
+          person.name = input.value.trim() || "Новый сотрудник";
+          input.value = person.name;
+          savePeople();
+        }
+      });
+    });
+
+    peopleBox.querySelectorAll(".sc-remove").forEach(function (button) {
+      button.addEventListener("click", function () {
+        const person = people.find(p => p.id === button.dataset.id);
+        if (!person) return;
+        if (!confirm('Удалить сотрудника "' + person.name +
+          '" и его график за все месяцы?')) return;
+
+        people = people.filter(p => p.id !== person.id);
+        Object.keys(schedules).forEach(function (monthName) {
+          if (schedules[monthName]) {
+            delete schedules[monthName][person.id];
+          }
+        });
+        savePeople();
+        saveSchedules();
+        render();
+      });
+    });
+
+    peopleBox.querySelectorAll(".sc-status").forEach(function (select) {
+      select.addEventListener("change", function () {
+        const data = getDayData(select.dataset.id, select.dataset.day);
+        data.status = select.value;
+        saveSchedules();
+      });
+    });
+
+    peopleBox.querySelectorAll(".sc-time").forEach(function (input) {
+      input.addEventListener("change", function () {
+        const data = getDayData(input.dataset.id, input.dataset.day);
+        data[input.dataset.field] = input.value;
+        saveSchedules();
+      });
+    });
+
+    saveSchedules();
   }
 
-  $("la-form").addEventListener("submit", function (event) {
-    event.preventDefault();
-
-    const report = {
-      date: $("la-date").value,
-      name: $("la-name").value.trim(),
-      orders: Number($("la-order-input").value),
-      hours: Number($("la-hour-input").value),
-      errors: Number($("la-error-input").value)
-    };
-
-    if (!report.date || !report.name ||
-        !Number.isInteger(report.orders) || report.orders < 0 ||
-        !Number.isFinite(report.hours) || report.hours <= 0 ||
-        !Number.isInteger(report.errors) || report.errors < 0) {
-      $("la-message").textContent = "Проверь введённые данные.";
+  document.getElementById("sc-add-person").addEventListener("click", function () {
+    const name = nameInput.value.trim();
+    if (!name) {
+      nameInput.focus();
+      alert("Введи фамилию и имя сотрудника.");
       return;
     }
 
-    reports.push(report);
-
-    try {
-      localStorage.setItem(key, JSON.stringify(reports));
-    } catch (e) {
-      reports.pop();
-      $("la-message").textContent = "Не удалось сохранить данные в браузере.";
-      return;
-    }
-
-    $("la-message").textContent = "Отчёт сохранён!";
-    $("la-name").value = "";
-    $("la-order-input").value = "";
-    $("la-hour-input").value = "";
-    $("la-error-input").value = "0";
+    people.push({
+      id: "staff_" + Date.now() + "_" +
+        Math.floor(Math.random() * 100000),
+      name: name
+    });
+    savePeople();
+    nameInput.value = "";
     render();
+  });
+
+  monthInput.addEventListener("change", function () {
+    localStorage.setItem(monthKey, monthInput.value);
+    render();
+  });
+
+  document.getElementById("sc-print").addEventListener("click", function () {
+    window.print();
+  });
+
+  nameInput.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      document.getElementById("sc-add-person").click();
+    }
   });
 
   render();
 })();
 </script>
-<section id="manager-analytics" style="margin:20px 0;padding:20px;background:#f2f5fa;border-radius:16px;font-family:Arial,sans-serif;color:#142443;">
-  <h2 style="background:#142443;color:white;padding:16px;border-radius:12px;margin-top:0;">📊 Панель руководителя</h2>
-  <p style="color:#52627c;">Личная статистика, рейтинг курьеров и отчёты склада</p>
-
-  <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
-    <label>Период
-      <select id="ma-period" style="display:block;padding:10px;border-radius:8px;">
-        <option value="all">Всё время</option>
-        <option value="day">За день</option>
-        <option value="month">За месяц</option>
-      </select>
-    </label>
-    <label>Дата отчёта
-      <input id="ma-date" type="date" style="display:block;padding:10px;border-radius:8px;">
-    </label>
-    <label>Сотрудник
-      <select id="ma-employee" style="display:block;padding:10px;border-radius:8px;max-width:220px;">
-        <option value="all">Все сотрудники</option>
-      </select>
-    </label>
-  </div>
-
-  <div id="ma-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;"></div>
-
-  <h3>👤 Личная статистика сотрудника</h3>
-  <div id="ma-personal" style="background:white;padding:14px;border-radius:10px;">Выбери сотрудника выше.</div>
-
-  <h3>🏆 Рейтинг курьеров</h3>
-  <div id="ma-ranking" style="background:white;padding:14px;border-radius:10px;overflow-x:auto;"></div>
-
-  <h3>📅 История отчётов</h3>
-  <div id="ma-history" style="background:white;padding:14px;border-radius:10px;overflow-x:auto;"></div>
-
-  <p style="font-size:12px;color:#667085;">Данные берутся из сохранённых отчётов Lavka Control в этом браузере. Для общей статистики отчёты нужно предварительно внести и сохранить.</p>
-</section>
-
-<script>
-(function(){
-  const $ = id => document.getElementById(id);
-  const period = $('ma-period');
-  const dateInput = $('ma-date');
-  const employee = $('ma-employee');
-
-  const now = new Date();
-  dateInput.value = [
-    now.getFullYear(),
-    String(now.getMonth()+1).padStart(2,'0'),
-    String(now.getDate()).padStart(2,'0')
-  ].join('-');
-
-  function getReports(){
-    try {
-      const data = JSON.parse(localStorage.getItem('lavkaAnalyticsReports_v1') || '[]');
-      return Array.isArray(data) ? data : [];
-    } catch(e) {
-      return [];
-    }
-  }
-
-  function esc(value){
-    return String(value ?? '').replace(/[&<>"']/g, c => ({
-      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-    }[c]));
-  }
-
-  function render(){
-    const reports = getReports().map(r => ({
-      date: String(r.date || ''),
-      name: String(r.name || r.employee || r.employeeName || r.courier || r.fio || r.fullName || 'Не указано'),
-      orders: Number(r.orders) || 0,
-      hours: Number(r.hours) || 0,
-      errors: Number(r.errors) || 0
-    }));
-
-    const selectedDate = dateInput.value;
-    const selectedPeriod = period.value;
-    const matching = reports.filter(r => {
-      if(selectedPeriod === 'day' && r.date !== selectedDate) return false;
-      if(selectedPeriod === 'month' && r.date.slice(0,7) !== selectedDate.slice(0,7)) return false;
-      return true;
-    });
-
-    const names = [...new Set(reports.map(r => r.name))].sort((a,b)=>a.localeCompare(b,'ru'));
-    const oldChoice = employee.value;
-    employee.innerHTML = '<option value="all">Все сотрудники</option>' +
-      names.map(n => '<option value="'+esc(n)+'">'+esc(n)+'</option>').join('');
-    if(names.includes(oldChoice)) employee.value = oldChoice;
-
-    const visible = matching.filter(r => employee.value === 'all' || r.name === employee.value);
-    const total = key => visible.reduce((sum,r)=>sum+r[key],0);
-    const orders = total('orders');
-    const hours = total('hours');
-    const errors = total('errors');
-    const productivity = hours ? (orders/hours).toFixed(1) : '0';
-
-    const cards = [
-      ['Заказы',orders],['Часы',hours],['Заказы/час',productivity],['Ошибки',errors]
-    ];
-    $('ma-kpis').innerHTML = cards.map(c =>
-      '<div style="background:white;padding:16px;border-radius:12px;border-top:4px solid #2857a4;">' +
-      '<div style="color:#667085;font-size:13px;">'+c[0]+'</div>' +
-      '<strong style="font-size:25px;">'+c[1]+'</strong></div>'
-    ).join('');
-
-    if(employee.value !== 'all'){
-      const mine = visible;
-      const mo = mine.reduce((s,r)=>s+r.orders,0);
-      const mh = mine.reduce((s,r)=>s+r.hours,0);
-      const me = mine.reduce((s,r)=>s+r.errors,0);
-      $('ma-personal').innerHTML = '<strong>'+esc(employee.value)+'</strong><p>Отчётов: '+mine.length+
-        '</p><p>Заказы: '+mo+'</p><p>Отработано часов: '+mh+
-        '</p><p>Производительность: '+(mh?(mo/mh).toFixed(1):'0')+' заказов/час</p><p>Ошибки: '+me+'</p>';
-    } else {
-      $('ma-personal').textContent = 'Выбери конкретного сотрудника в списке выше.';
-    }
-
-    const stats = {};
-    matching.forEach(r => {
-      if(!stats[r.name]) stats[r.name] = {orders:0,hours:0,errors:0,reports:0};
-      stats[r.name].orders += r.orders;
-      stats[r.name].hours += r.hours;
-      stats[r.name].errors += r.errors;
-      stats[r.name].reports++;
-    });
-
-    const ranking = Object.entries(stats).sort((a,b)=>b[1].orders-a[1].orders);
-    $('ma-ranking').innerHTML = ranking.length
-      ? '<table style="width:100%;border-collapse:collapse;"><tr><th style="text-align:left;padding:8px;">Сотрудник</th><th>Заказы</th><th>Часы</th><th>Заказы/час</th><th>Ошибки</th></tr>'+
-        ranking.map((item,i)=>'<tr style="border-top:1px solid #dce3ed;"><td style="padding:8px;">'+(i+1)+'. '+esc(item[0])+'</td><td style="text-align:center;">'+item[1].orders+'</td><td style="text-align:center;">'+item[1].hours+'</td><td style="text-align:center;">'+(item[1].hours?(item[1].orders/item[1].hours).toFixed(1):'0')+'</td><td style="text-align:center;">'+item[1].errors+'</td></tr>').join('')+'</table>'
-      : 'Пока нет отчётов за выбранный период.';
-
-    const history = [...visible].sort((a,b)=>b.date.localeCompare(a.date));
-    $('ma-history').innerHTML = history.length
-      ? '<table style="width:100%;border-collapse:collapse;"><tr><th style="text-align:left;padding:8px;">Дата</th><th>Сотрудник</th><th>Заказы</th><th>Часы</th><th>Ошибки</th></tr>'+
-        history.map(r=>'<tr style="border-top:1px solid #dce3ed;"><td style="padding:8px;">'+esc(r.date)+'</td><td>'+esc(r.name)+'</td><td style="text-align:center;">'+r.orders+'</td><td style="text-align:center;">'+r.hours+'</td><td style="text-align:center;">'+r.errors+'</td></tr>').join('')+'</table>'
-      : 'История пока пустая.';
-  }
-
-  period.addEventListener('change',render);
-  dateInput.addEventListener('change',render);
-  employee.addEventListener('change',render);
-  render();
-})();
 </script>
 </body>
 </html>
